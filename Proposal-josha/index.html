@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Student Attendance Monitoring System — track, manage and export daily student attendance.">
+  <title>S.A.M.Y. Student Attendance Monitoring System</title>
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  <link rel="apple-touch-icon" href="logo.svg">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <style id="inlined-styles">/* =============================================
+   Student Attendance Monitoring System
+   Vanilla CSS · Light/Dark themes · Responsive
+   ============================================= */
+
+:root {
+  --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Brand — from crest logo */
+  --navy-900: #0b2e4f;
+  --navy-800: #0f3d68;
+  --navy-700: #14508c;
+  --navy-600: #1d64a8;
+  --navy-500: #2b7cc4;
+  --navy-100: #dcebf8;
+
+  /* Status */
+  --green-50: #ecfdf5;  --green-600: #059669; --green-700: #047857;
+  --red-50: #fff1f2;    --red-600: #e11d48;   --red-700: #be123c;
+  --amber-50: #fffbeb;  --amber-600: #d97706; --amber-700: #b45309;
+
+  /* Neutrals (light theme) */
+  --bg: #f1f5f9;
+  --bg-accent: #e8f1fa;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text: #0f172a;
+  --text-2: #334155;
+  --muted: #64748b;
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, .06);
+  --shadow-md: 0 4px 14px rgba(15, 23, 42, .08);
+  --shadow-lg: 0 20px 45px rgba(15, 23, 42, .18);
+  --topbar-bg: linear-gradient(120deg, #0b2e4f 0%, #14508c 55%, #1d64a8 100%);
+  --overlay: rgba(15, 23, 42, .45);
+  --radius: 14px;
+  --radius-sm: 9px;
+}
+
+[data-theme="dark"] {
+  --bg: #0b1220;
+  --bg-accent: #0d1a2b;
+  --surface: #111c30;
+  --surface-2: #16233c;
+  --border: #24364f;
+  --border-strong: #33496a;
+  --text: #e9eef6;
+  --text-2: #c3cede;
+  --muted: #8ea2bd;
+  --green-50: #062b20; --green-600: #34d399; --green-700: #6ee7b7;
+  --red-50: #330d19;   --red-600: #fb7185;   --red-700: #fda4af;
+  --amber-50: #342206; --amber-600: #fbbf24; --amber-700: #fcd34d;
+  --navy-100: #16314c;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, .45);
+  --shadow-lg: 0 20px 45px rgba(0, 0, 0, .6);
+  --overlay: rgba(2, 6, 14, .65);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font);
+  background:
+    radial-gradient(1200px 500px at 85% -100px, var(--bg-accent), transparent 60%),
+    var(--bg);
+  color: var(--text);
+  font-size: 14.5px;
+  line-height: 1.5;
+  min-height: 100vh;
+  transition: background-color .25s ease, color .25s ease;
+}
+
+.app { display: flex; flex-direction: column; min-height: 100vh; }
+
+.muted { color: var(--muted); font-size: 12.5px; }
+
+/* ============ TOPBAR ============ */
+.topbar {
+  background: var(--topbar-bg);
+  color: #fff;
+  box-shadow: var(--shadow-md);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.topbar-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+
+.logo-mark { width: 48px; height: 54px; flex-shrink: 0; filter: drop-shadow(0 2px 4px rgba(0,0,0,.3)); }
+
+.brand-title { font-size: 1.18rem; font-weight: 800; letter-spacing: .2px; line-height: 1.25; }
+
+.brand-sub {
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #a8cbe8;
+  margin-top: 2px;
+}
+
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+
+.clock {
+  text-align: right;
+  background: rgba(255, 255, 255, .1);
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 10px;
+  padding: 6px 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.clock-date { font-size: .74rem; color: #cfe3f5; font-weight: 500; }
+
+.clock-time { font-size: 1.02rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
+
+/* ============ LAYOUT ============ */
+.container { max-width: 1280px; margin: 0 auto; padding: 26px 24px 40px; width: 100%; flex: 1; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+}
+
+.page-footer {
+  text-align: center;
+  padding: 18px 24px 26px;
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+
+/* ============ STAT CARDS ============ */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+.stat-info { display: flex; flex-direction: column; min-width: 0; }
+
+.stat-label { font-size: .74rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+
+.stat-value { font-size: 2rem; font-weight: 800; line-height: 1.15; font-variant-numeric: tabular-nums; }
+
+.stat-sub { font-size: .74rem; color: var(--muted); }
+
+.stat-icon {
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+
+.stat-icon svg { width: 22px; height: 22px; }
+
+.stat-icon.blue  { background: var(--navy-100); color: var(--navy-700); }
+.stat-icon.green { background: var(--green-50); color: var(--green-600); }
+.stat-icon.red   { background: var(--red-50);   color: var(--red-600); }
+.stat-icon.amber { background: var(--amber-50); color: var(--amber-600); }
+
+[data-theme="dark"] .stat-icon.blue { color: #7db8e8; }
+
+/* ============ QUICK ROW ============ */
+.quick-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+
+.card-title-row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+
+.card-title-row h2 { font-size: 1rem; font-weight: 700; }
+
+.card-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: var(--navy-100);
+  color: var(--navy-700);
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .card-icon { color: #7db8e8; }
+
+.card-icon svg { width: 19px; height: 19px; }
+
+/* Scanner */
+.scanner-row { display: flex; gap: 10px; }
+
+.scanner-field {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface-2);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 0 14px;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.scanner-field:focus-within { border-color: var(--navy-500); box-shadow: 0 0 0 4px rgba(43, 124, 196, .15); }
+
+.scanner-field.flash-ok    { border-color: var(--green-600); box-shadow: 0 0 0 4px rgba(5, 150, 105, .18); }
+.scanner-field.flash-error { border-color: var(--red-600);   box-shadow: 0 0 0 4px rgba(225, 29, 72, .18); }
+
+.scanner-field-icon { color: var(--muted); width: 20px; height: 20px; flex-shrink: 0; }
+
+.scanner-field input {
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  letter-spacing: .4px;
+  padding: 13px 0;
+  min-width: 0;
+}
+
+.scanner-field input::placeholder { font-weight: 400; letter-spacing: 0; color: var(--muted); }
+
+kbd {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: .7rem;
+  font-family: inherit;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.scanner-feedback { margin-top: 12px; font-size: .82rem; color: var(--muted); min-height: 22px; }
+
+.scanner-feedback.ok    { color: var(--green-700); font-weight: 600; }
+.scanner-feedback.error { color: var(--red-700);   font-weight: 600; }
+
+.manual-actions { display: flex; flex-direction: column; gap: 10px; }
+
+/* ============ BUTTONS ============ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font: inherit;
+  font-weight: 600;
+  font-size: .86rem;
+  border-radius: var(--radius-sm);
+  padding: 11px 18px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .05s ease;
+  white-space: nowrap;
+}
+
+.btn:active { transform: scale(.98); }
+
+.btn svg { width: 17px; height: 17px; }
+
+/* ============ TABLE ============ */
+.table-card { padding-bottom: 8px; }
+
+.table-head { flex-wrap: wrap; }
+
+.toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.toolbar-divider { width: 1px; height: 26px; background: var(--border); }
+
+.tool-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 0 12px;
+  min-width: 220px;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.tool-search:focus-within { border-color: var(--navy-500); box-shadow: 0 0 0 3px rgba(43, 124, 196, .14); }
+
+.tool-search svg { width: 16px; height: 16px; color: var(--muted); flex-shrink: 0; }
+
+.tool-search input {
+  border: 0; outline: 0; background: transparent;
+  color: var(--text); font: inherit; padding: 9px 0; min-width: 0; flex: 1;
+}
+
+.tool-search-lg { padding: 0 14px; margin-bottom: 14px; }
+.tool-search-lg input { padding: 12px 0; font-size: .95rem; }
+
+.select {
+  font: inherit;
+  font-size: .84rem;
+  font-weight: 500;
+  color: var(--text-2);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  cursor: pointer;
+}
+
+.select:focus { outline: none; border-color: var(--navy-500); box-shadow: 0 0 0 3px rgba(43, 124, 196, .14); }
+
+.table-wrap { overflow-x: auto; margin: 0 -20px; }
+
+.attendance-table { width: 100%; border-collapse: collapse; min-width: 860px; }
+
+.attendance-table th {
+  text-align: left;
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--muted);
+  padding: 11px 20px;
+  border-bottom: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  white-space: nowrap;
+}
+
+.attendance-table td {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  font-size: .88rem;
+}
+
+.attendance-table tbody tr { transition: background-color .12s ease; }
+.attendance-table tbody tr:hover { background: var(--surface-2); }
+.attendance-table tbody tr:last-child td { border-bottom: 0; }
+
+.cell-id { font-weight: 700; color: var(--navy-700); font-variant-numeric: tabular-nums; }
+[data-theme="dark"] .cell-id { color: #7db8e8; }
+
+.cell-name { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+
+.avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: .72rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.cell-time { color: var(--text-2); font-size: .82rem; white-space: nowrap; }
+.cell-time.empty { color: var(--muted); font-style: italic; }
+
+.col-actions { text-align: right; }
+.row-actions { display: flex; gap: 6px; justify-content: flex-end; }
+
+.row-btn {
+  width: 32px; height: 32px;
+  display: inline-grid; place-items: center;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color .12s ease, border-color .12s ease, background-color .12s ease;
+}
+
+.row-btn:hover { color: var(--navy-700); border-color: var(--navy-500); background: var(--surface-2); }
+.row-btn.danger:hover { color: var(--red-600); border-color: var(--red-600); background: var(--red-50); }
+.row-btn svg { width: 15px; height: 15px; }
+
+/* Status badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  padding: 4px 11px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.badge .dot, .status-menu .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+.badge-present { background: var(--green-50); color: var(--green-700); }
+.badge-present .dot { background: var(--green-600); }
+.badge-absent { background: var(--red-50); color: var(--red-700); }
+.badge-absent .dot { background: var(--red-600); }
+
+/* ============ MODALS ============ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: var(--overlay);
+  backdrop-filter: blur(3px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.modal-overlay[hidden] { display: none; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 560px;
+  padding: 22px;
+  animation: modal-in .18s ease;
+}
+
+.modal-wide { max-width: 680px; }
+.modal-sm { max-width: 420px; }
+
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(10px) scale(.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.modal-head h3 { font-size: 1.08rem; font-weight: 700; }
+
+.modal-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.confirm-message { color: var(--text-2); font-size: .9rem; }
+
+/* Forms */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.form-field { display: flex; flex-direction: column; gap: 6px; }
+.form-field-full { grid-column: 1 / -1; }
+
+.form-field label { font-size: .78rem; font-weight: 600; color: var(--text-2); }
+
+.req { color: var(--red-600); }
+
+.form-field input {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.form-field input:focus, .form-field select:focus {
+  outline: none;
+  border-color: var(--navy-500);
+  box-shadow: 0 0 0 3px rgba(43, 124, 196, .14);
+}
+
+.form-field input.invalid { border-color: var(--red-600); }
+
+.field-error { font-size: .74rem; color: var(--red-600); font-weight: 500; }
+.field-error:empty { display: none; }
+
+/* Manual results */
+.manual-results {
+  max-height: 46vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 4px;
+}
+
+.manual-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  transition: border-color .12s ease;
+}
+
+.manual-row:hover { border-color: var(--navy-500); }
+
+.manual-row-info { flex: 1; min-width: 0; }
+
+.manual-row-name { font-weight: 700; font-size: .9rem; }
+
+.manual-row-meta { font-size: .76rem; color: var(--muted); }
+
+
+/* ============ TOASTS ============ */
+.toast-container {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: min(360px, calc(100vw - 44px));
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--navy-500);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  padding: 13px 15px;
+  font-size: .85rem;
+  color: var(--text-2);
+  animation: toast-in .22s ease;
+}
+
+.toast.leaving { opacity: 0; transform: translateX(12px); transition: opacity .2s ease, transform .2s ease; }
+
+.toast svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+
+.toast.success { border-left-color: var(--green-600); }
+.toast.success svg { color: var(--green-600); }
+.toast.error { border-left-color: var(--red-600); }
+.toast.error svg { color: var(--red-600); }
+.toast.info { border-left-color: var(--navy-500); }
+.toast.info svg { color: var(--navy-500); }
+
+.toast strong { color: var(--text); display: block; font-size: .86rem; }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.account-control { display: flex; align-items: center; gap: 9px; }
+.account-name { max-width: 150px; overflow: hidden; color: #d9ebfa; font-size: .78rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.btn-account { padding: 8px 11px; color: #fff; background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .22); }
+.btn-account:hover { color: #fff; background: rgba(255, 255, 255, .22); }
+.btn-account svg { width: 15px; height: 15px; }
+
+/* ============ PRINT ============ */
+#print-report { display: none; }
+
+@media print {
+  body { background: #fff !important; color: #000 !important; }
+  .app, .toast-container, .status-menu, .modal-overlay { display: none !important; }
+
+  #print-report { display: block !important; font-family: var(--font); color: #000; padding: 0; }
+
+  .print-head { text-align: center; border-bottom: 3px double #0f3d68; padding-bottom: 12px; margin-bottom: 18px; }
+  .print-logo { display: block; width: 64px; height: auto; margin: 0 auto 8px; }
+  .print-head h1 { font-size: 1.3rem; color: #0f3d68; }
+  .print-head p { font-size: .9rem; margin-top: 4px; }
+
+  .print-table { width: 100%; border-collapse: collapse; }
+  .print-table th, .print-table td { border: 1px solid #94a3b8; padding: 8px 10px; font-size: .82rem; text-align: left; }
+  .print-table th { background: #eef4fa !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .print-foot { margin-top: 16px; font-size: .75rem; color: #475569; text-align: right; }
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 1080px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .quick-row { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+}
+
+@media (max-width: 760px) {
+  .topbar-inner { padding: 12px 16px; }
+  .brand-title { font-size: .98rem; }
+  .account-name { display: none; }
+  .logo-mark { width: 40px; height: 45px; }
+  .clock { padding: 5px 10px; }
+  .clock-time { font-size: .9rem; }
+  .container { padding: 18px 14px 32px; }
+  .card { padding: 16px; }
+  .table-wrap { margin: 0 -16px; }
+  .attendance-table th, .attendance-table td { padding-left: 16px; padding-right: 16px; }
+  .toolbar { width: 100%; }
+  .tool-search { flex: 1 1 100%; min-width: 0; }
+  .toolbar-divider { display: none; }
+  .scanner-row { flex-direction: column; }
+  .form-grid { grid-template-columns: 1fr; }
+  .manual-row { flex-wrap: wrap; }
+  .hidden-sm { display: none; }
+}
+
+@media (max-width: 460px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .brand-sub { display: none; }
+  .row-actions { gap: 4px; }
+}
+
+.manual-row-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+.mark-btn {
+  font: inherit;
+  font-size: .74rem;
+  font-weight: 700;
+  padding: 7px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background-color .12s ease;
+}
+
+.mark-btn.present { background: var(--green-50); color: var(--green-700); }
+.mark-btn.present:hover, .mark-btn.present.active { background: var(--green-600); color: #fff; }
+.mark-btn.absent { background: var(--red-50); color: var(--red-700); }
+.mark-btn.absent:hover, .mark-btn.absent.active { background: var(--red-600); color: #fff; }
+.mark-btn.late { background: var(--amber-50); color: var(--amber-700); }
+.mark-btn.late:hover, .mark-btn.late.active { background: var(--amber-600); color: #fff; }
+
+.manual-empty { text-align: center; color: var(--muted); padding: 30px 10px; font-size: .88rem; }
+
+.badge-late { background: var(--amber-50); color: var(--amber-700); }
+.badge-late .dot { background: var(--amber-600); }
+.badge-excused { background: var(--navy-100); color: var(--navy-700); }
+.badge-excused .dot { background: var(--navy-500); }
+.badge-none { background: var(--surface-2); color: var(--muted); border: 1px dashed var(--border-strong); }
+.badge-none .dot { background: var(--border-strong); }
+
+.dot-present { background: var(--green-600); }
+.dot-absent { background: var(--red-600); }
+.dot-late { background: var(--amber-600); }
+.dot-excused { background: var(--navy-500); }
+.dot-none { background: var(--border-strong); }
+
+.table-empty { text-align: center; padding: 44px 20px; color: var(--muted); }
+.table-empty svg { width: 30px; height: 30px; margin-bottom: 8px; opacity: .6; }
+
+.table-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 13px 0 8px;
+  font-size: .8rem;
+  color: var(--text-2);
+  font-weight: 500;
+}
+
+/* Status dropdown menu */
+.status-menu {
+  position: fixed;
+  z-index: 60;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  padding: 6px;
+  min-width: 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.status-menu-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 4px 7px 8px;
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.status-menu-close {
+  width: 26px !important;
+  height: 26px;
+  display: grid !important;
+  place-items: center;
+  padding: 0 !important;
+  color: var(--muted) !important;
+}
+
+.status-menu-close:hover {
+  color: var(--text) !important;
+  background: var(--surface-2) !important;
+}
+
+.status-menu-close svg { width: 15px; height: 15px; }
+
+.status-menu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--text-2);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  padding: 9px 12px;
+  cursor: pointer;
+}
+
+.status-menu button:hover { background: var(--surface-2); color: var(--text); }
+
+.status-menu .menu-clear { border-top: 1px solid var(--border); border-radius: 0 0 8px 8px; color: var(--muted); font-weight: 500; margin-top: 3px; }
+
+
+.btn-primary { background: var(--navy-700); color: #fff; }
+.btn-primary:hover { background: var(--navy-800); }
+
+.btn-outline { background: var(--surface); border-color: var(--border-strong); color: var(--text-2); }
+.btn-outline:hover { border-color: var(--navy-500); color: var(--navy-700); background: var(--surface-2); }
+
+[data-theme="dark"] .btn-outline:hover { color: #7db8e8; }
+
+.btn-ghost { background: transparent; color: var(--muted); }
+.btn-ghost:hover { background: var(--surface-2); color: var(--text); }
+
+.btn-danger { background: var(--red-600); color: #fff; }
+.btn-danger:hover { background: var(--red-700); }
+
+.btn-danger-ghost { background: transparent; border-color: var(--border-strong); color: var(--red-600); }
+.btn-danger-ghost:hover { background: var(--red-50); border-color: var(--red-600); }
+
+.btn-sm { padding: 8px 13px; font-size: .8rem; }
+.btn-sm svg { width: 15px; height: 15px; }
+
+.icon-btn {
+  width: 38px; height: 38px;
+  display: inline-grid; place-items: center;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease;
+  flex-shrink: 0;
+}
+
+.icon-btn:hover { background: var(--surface-2); color: var(--navy-700); }
+.icon-btn svg { width: 18px; height: 18px; }
+
+.icon-btn.glass {
+  background: rgba(255, 255, 255, .12);
+  border-color: rgba(255, 255, 255, .22);
+  color: #fff;
+}
+
+.icon-btn.glass:hover { background: rgba(255, 255, 255, .22); color: #fff; }
+
+
+
+/* ============ S.A.M.Y. ENHANCEMENTS ============ */
+.logo-mark { width: 52px; height: 58px; object-fit: contain; padding: 4px; border-radius: 15px; background: rgba(255,255,255,.12); box-shadow: 0 8px 22px rgba(2, 12, 32, .28), inset 0 1px 0 rgba(255,255,255,.2); }
+.brand { gap: 16px; }
+.brand-title { text-shadow: 0 2px 12px rgba(0,0,0,.18); }
+.status-indicator { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: rgba(34, 197, 94, .12); border: 1px solid rgba(134, 239, 172, .25); color: #dcfce7; }
+.status-pulse { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 4px rgba(74, 222, 128, .14); animation: status-pulse 2s infinite; }
+@keyframes status-pulse { 0%, 100% { box-shadow: 0 0 0 3px rgba(74,222,128,.12); } 50% { box-shadow: 0 0 0 7px rgba(74,222,128,0); } }
+.icon-btn { transition: transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.icon-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(2, 12, 32, .18); }
+.card, .stat-card { box-shadow: 0 12px 28px rgba(2, 12, 32, .12), inset 0 1px 0 rgba(255,255,255,.025); }
+.card:hover, .stat-card:hover { border-color: rgba(59,130,246,.38); box-shadow: 0 16px 34px rgba(2, 12, 32, .18), 0 0 0 1px rgba(59,130,246,.08); }
+.card-icon { box-shadow: 0 8px 18px rgba(37,99,235,.14); }
+.btn { min-height: 40px; transition: transform .18s ease, box-shadow .18s ease, filter .18s ease; }
+.btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+.btn:active { transform: translateY(0); }
+.btn-primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); border-color: #3b82f6; box-shadow: 0 8px 18px rgba(37,99,235,.25); }
+.btn-primary:hover { background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 12px 24px rgba(37,99,235,.32); }
+.scanner-field:focus-within { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59,130,246,.16), 0 8px 20px rgba(2,12,32,.12); }
+.table-card { overflow: hidden; }
+.attendance-table tbody tr { transition: background .18s ease, transform .18s ease; }
+.attendance-table tbody tr:hover { background: rgba(37,99,235,.07); transform: translateX(2px); }
+.row-btn { transition: transform .16s ease, color .16s ease, border-color .16s ease, background .16s ease; }
+.row-btn:hover { transform: translateY(-2px); }
+.quick-row { align-items: stretch; }
+.manual-actions .btn { justify-content: center; }
+
+.dashboard-overview { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 16px; align-items: stretch; }
+.dashboard-overview .stats-grid { margin-top: 0; }
+.attendance-chart-card { padding: 18px; display: flex; flex-direction: column; min-width: 0; }
+.chart-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.chart-card-head h2 { font-size: .95rem; }
+.chart-total { color: var(--muted); font-size: .75rem; white-space: nowrap; }
+.chart-total strong { color: var(--text); font-size: 1rem; }
+.chart-wrap { position: relative; width: 176px; height: 176px; margin: 14px auto 10px; display: grid; place-items: center; isolation: isolate; }
+.chart-wrap::before { content: ''; position: absolute; inset: -7px; border: 1px solid rgba(59,130,246,.16); border-radius: 50%; animation: overview-orbit 8s linear infinite; pointer-events: none; }
+.chart-wrap::after { content: ''; position: absolute; inset: 7px; border-radius: 50%; background: radial-gradient(circle, rgba(37,99,235,.12), transparent 67%); pointer-events: none; }
+.chart-wrap canvas { width: 100% !important; height: 100% !important; position: relative; z-index: 1; }
+.chart-center { position: absolute; inset: 40px; display: grid; place-content: center; text-align: center; pointer-events: none; z-index: 10; border-radius: 50%; background: linear-gradient(145deg, rgba(30,41,59,1), rgba(15,23,42,1)); border: 1px solid rgba(96,165,250,.3); box-shadow: 0 0 0 6px rgba(37,99,235,.06), 0 10px 30px rgba(2,12,32,.35), inset 0 1px 0 rgba(255,255,255,.08); animation: present-focus 3.2s ease-in-out infinite; }
+.chart-center strong { font-size: 1.65rem; line-height: 1.1; color: #f8fafc; letter-spacing: -.04em; }
+.chart-center span { color: #86efac; font-size: .65rem; text-transform: uppercase; letter-spacing: .12em; font-weight: 800; }
+.chart-center small { color: #94a3b8; font-size: .58rem; margin-top: 2px; }
+.chart-center.is-hovering span { color: #f8fafc; }
+.chart-center.is-hovering small { color: #86efac; font-weight: 700; }
+.chart-hover-message { position: absolute; top: -34px; left: 50%; z-index: 20; min-width: 112px; padding: 7px 10px; border: 1px solid rgba(96,165,250,.38); border-radius: 9px; background: rgba(15,23,42,.97); box-shadow: 0 8px 22px rgba(2,12,32,.42), 0 0 0 3px rgba(37,99,235,.08); color: #f8fafc; font-size: .7rem; font-weight: 800; text-align: center; white-space: nowrap; pointer-events: none; opacity: 0; transform: translate(-50%, 5px) scale(.94); transition: opacity .16s ease, transform .16s ease; }
+.chart-hover-message::after { content: ''; position: absolute; left: 50%; bottom: -5px; width: 9px; height: 9px; background: rgba(15,23,42,.97); border-right: 1px solid rgba(96,165,250,.38); border-bottom: 1px solid rgba(96,165,250,.38); transform: translateX(-50%) rotate(45deg); }
+.chart-hover-message.is-visible { opacity: 1; transform: translate(-50%, 0) scale(1); }
+.chart-hover-message.present { border-color: rgba(52,211,153,.55); }
+.chart-hover-message.absent { border-color: rgba(251,113,133,.6); }
+.chart-hover-message.late { border-color: rgba(251,191,36,.65); }
+@keyframes present-focus { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 6px rgba(37,99,235,.06), 0 10px 30px rgba(2,12,32,.35), inset 0 1px 0 rgba(255,255,255,.08); } 50% { transform: scale(1.045); box-shadow: 0 0 0 10px rgba(52,211,153,.08), 0 14px 35px rgba(2,12,32,.42), inset 0 1px 0 rgba(255,255,255,.12); } }
+@keyframes overview-orbit { to { transform: rotate(360deg); } }
+.chart-center strong.value-pop { animation: value-pop .45s ease; }
+@keyframes value-pop { 0% { transform: scale(.7); opacity: .3; } 70% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); } }
+.chart-legend { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 12px; color: var(--muted); font-size: .7rem; }
+.chart-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.chart-legend b { color: var(--text); }
+.legend-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.legend-dot.present { background: #34d399; } .legend-dot.absent { background: #fb7185; } .legend-dot.late { background: #fbbf24; }
+.scanner-feedback { margin: 0 0 12px; min-height: 0; padding: 11px 13px; border: 1px solid transparent; border-radius: 11px; display: flex; align-items: center; gap: 10px; animation: feedback-in .2s ease both; }
+.scanner-feedback[hidden] { display: none; }
+.scanner-feedback.ok { background: var(--green-50); border-color: rgba(52, 211, 153, .35); color: var(--green-700); }
+.scanner-feedback.duplicate { background: var(--amber-50); border-color: rgba(251, 191, 36, .4); color: var(--amber-700); }
+.scanner-feedback.error { background: var(--red-50); border-color: rgba(251, 113, 133, .35); color: var(--red-700); }
+.feedback-icon { font-size: 1.1rem; font-weight: 800; }
+.feedback-avatar { width: 32px; height: 32px; flex: 0 0 32px; font-size: .68rem; }
+.feedback-copy { min-width: 0; display: grid; gap: 1px; }
+.feedback-copy strong { font-size: .8rem; }
+.feedback-copy span { font-size: .72rem; opacity: .9; }
+.feedback-dismiss { margin-left: auto; border: 0; background: transparent; color: currentColor; cursor: pointer; opacity: .7; font-size: 1rem; }
+@keyframes feedback-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+.table-empty { border-top: 1px solid var(--border); }
+.table-empty svg { width: 42px; height: 42px; color: var(--navy-500); opacity: .8; }
+.table-empty p { max-width: 380px; margin: 0 auto; }
+@media (max-width: 1080px) { .dashboard-overview { grid-template-columns: 1fr; } .attendance-chart-card { display: grid; grid-template-columns: 1fr 180px; align-items: center; } .attendance-chart-card .chart-card-head { align-self: start; } .attendance-chart-card .chart-wrap { grid-column: 2; grid-row: 1 / span 2; } .attendance-chart-card .chart-legend { grid-column: 1; justify-content: flex-start; } }
+@media (prefers-reduced-motion: reduce) { .chart-wrap::before, .chart-center, .status-pulse { animation: none; } }
+@media (max-width: 460px) { .attendance-chart-card { display: flex; } .attendance-chart-card .chart-wrap, .attendance-chart-card .chart-legend { grid-column: auto; grid-row: auto; } .topbar-inner { padding: 12px 16px; } .topbar-right { width: 100%; justify-content: space-between; } .brand-title { font-size: 1rem; } .logo-mark { width: 44px; height: 50px; } .status-indicator { padding: 7px 10px; } }
+</style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- ============ HEADER ============ -->
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <img class="logo-mark" src="logo.svg" alt="S.A.M.Y. crest logo">
+          <div class="brand-text">
+            <h1 class="brand-title">S.A.M.Y. · Student Attendance Monitoring System</h1>
+            <p class="brand-sub">Est. 2024 &bull; Integrated Solutions</p>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="clock">
+            <span class="clock-date" id="clock-date">&mdash;</span>
+            <span class="clock-time" id="clock-time">&mdash;</span>
+          </div>
+          <div class="account-control">
+            <span class="status-indicator"><span class="status-pulse"></span><span class="account-name" id="account-name">Ready</span></span>
+          </div>
+          <button id="theme-toggle" class="icon-btn glass" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+            <i data-lucide="moon"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+
+    <main class="container">
+
+      <!-- ============ SUMMARY CARDS ============ -->
+      <section class="dashboard-overview" aria-label="Today's summary dashboard">
+        <div class="stats-grid">
+        <article class="stat-card">
+          <div class="stat-info">
+            <span class="stat-label">Total Enrolled Students</span>
+            <span class="stat-value" id="stat-total">0</span>
+            <span class="stat-sub" id="stat-total-sub">&nbsp;</span>
+          </div>
+          <div class="stat-icon blue"><i data-lucide="users"></i></div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-info">
+            <span class="stat-label">Present Today</span>
+            <span class="stat-value" id="stat-present">0</span>
+            <span class="stat-sub" id="stat-present-sub">&nbsp;</span>
+          </div>
+          <div class="stat-icon green"><i data-lucide="user-check"></i></div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-info">
+            <span class="stat-label">Absent Today</span>
+            <span class="stat-value" id="stat-absent">0</span>
+            <span class="stat-sub" id="stat-absent-sub">&nbsp;</span>
+          </div>
+          <div class="stat-icon red"><i data-lucide="user-x"></i></div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-info">
+            <span class="stat-label">Late Today</span>
+            <span class="stat-value" id="stat-late">0</span>
+            <span class="stat-sub" id="stat-late-sub">&nbsp;</span>
+          </div>
+          <div class="stat-icon amber"><i data-lucide="clock"></i></div>
+        </article>
+        </div>
+        <article class="card attendance-chart-card">
+          <div class="chart-card-head">
+            <div>
+              <h2>Attendance Overview</h2>
+              <p class="muted">Live proportion of today's records</p>
+            </div>
+            <span class="chart-total"><strong id="chart-total">0</strong> marked</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="attendance-chart" role="img" aria-label="Donut chart showing present, absent, and late students"></canvas>
+            <div id="chart-hover-message" class="chart-hover-message" aria-live="polite"></div>
+            <div class="chart-center" aria-live="polite"><strong id="chart-center-value">0%</strong><span id="chart-center-label">present</span><small id="chart-center-detail">of enrolled</small></div>
+          </div>
+          <div class="chart-legend" role="group" aria-label="Attendance chart legend">
+            <span><i class="legend-dot present"></i>Present <b id="chart-present">0</b></span>
+            <span><i class="legend-dot absent"></i>Absent <b id="chart-absent">0</b></span>
+            <span><i class="legend-dot late"></i>Late <b id="chart-late">0</b></span>
+          </div>
+        </article>
+      </section>
+
+      <!-- ============ QUICK ACTIONS ============ -->
+      <section class="quick-row">
+        <div class="card scanner-card">
+          <div class="card-head">
+            <div class="card-title-row">
+              <span class="card-icon"><i data-lucide="scan-line"></i></span>
+              <div>
+                <h2>Quick ID Scanner</h2>
+                <p class="muted">Scan a barcode / QR ID or type it manually, then press Enter.</p>
+              </div>
+            </div>
+            <button id="sound-toggle" class="icon-btn" type="button" aria-label="Mute scanner sounds" title="Mute scanner sounds">
+              <i data-lucide="volume-2"></i>
+            </button>
+          </div>
+          <div class="scanner-feedback" id="scanner-feedback" aria-live="polite" hidden></div>
+          <div class="scanner-row">
+            <div class="scanner-field" id="scanner-field">
+              <i data-lucide="scan-line" class="scanner-field-icon"></i>
+              <input id="scanner-input" type="text" placeholder="e.g. S004 — press Enter to mark Present" autocomplete="off" spellcheck="false" aria-label="Student ID scanner input">
+              <kbd class="hidden-sm">Enter</kbd>
+            </div>
+            <button id="scanner-mark-btn" class="btn btn-primary" type="button">
+              <i data-lucide="check"></i><span>Mark Present</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="card manual-card">
+          <div class="card-head">
+            <div class="card-title-row">
+              <span class="card-icon"><i data-lucide="search"></i></span>
+              <div>
+                <h2>Manual Entry</h2>
+                <p class="muted">Search a student by ID or name to set their status.</p>
+              </div>
+            </div>
+          </div>
+          <div class="manual-actions">
+            <button id="open-manual-modal" class="btn btn-primary" type="button">
+              <i data-lucide="search"></i><span>Search &amp; Mark</span>
+            </button>
+            <button id="open-student-modal" class="btn btn-outline" type="button">
+              <i data-lucide="user-plus"></i><span>Add Student</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ATTENDANCE TABLE ============ -->
+      <section class="card table-card">
+        <div class="card-head table-head">
+          <div class="card-title-row">
+            <span class="card-icon"><i data-lucide="users"></i></span>
+            <div>
+              <h2>Today's Attendance Records</h2>
+              <p class="muted" id="table-date-label">&nbsp;</p>
+            </div>
+          </div>
+          <div class="toolbar">
+            <div class="tool-search">
+              <i data-lucide="search"></i>
+              <input id="table-search" type="search" placeholder="Filter by name or ID…" aria-label="Filter students by name or ID">
+            </div>
+            <select id="filter-status" class="select" aria-label="Filter by status">
+              <option value="all">Status: All</option>
+              <option value="present">Present</option>
+              <option value="absent">Absent</option>
+              <option value="late">Late</option>
+              <option value="excused">Excused</option>
+              <option value="none">Not Marked</option>
+            </select>
+            <select id="filter-section" class="select" aria-label="Filter by section">
+              <option value="all">Section: All</option>
+            </select>
+            <div class="toolbar-divider" aria-hidden="true"></div>
+            <button id="export-csv-btn" class="btn btn-outline btn-sm" type="button" title="Export the filtered records as CSV">
+              <i data-lucide="download"></i><span>Export CSV</span>
+            </button>
+            <button id="print-btn" class="btn btn-outline btn-sm" type="button" title="Print attendance report">
+              <i data-lucide="printer"></i><span>Print</span>
+            </button>
+            <button id="save-logs-btn" class="btn btn-outline btn-sm" type="button" title="Download a JSON backup of all stored logs">
+              <i data-lucide="save"></i><span>Save Logs</span>
+            </button>
+            <button id="reset-btn" class="btn btn-danger-ghost btn-sm" type="button" title="Clear today's attendance marks">
+              <i data-lucide="rotate-ccw"></i><span>Reset Today</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="attendance-table">
+            <thead>
+              <tr>
+                <th scope="col">Student ID</th>
+                <th scope="col">Full Name</th>
+                <th scope="col">Section / Class</th>
+                <th scope="col">Date &amp; Time Logged</th>
+                <th scope="col">Status</th>
+                <th scope="col" class="col-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="attendance-tbody">
+              <!-- rows rendered by app.js -->
+            </tbody>
+          </table>
+          <div id="table-empty" class="table-empty" hidden>
+            <i data-lucide="search"></i>
+            <p>No students match the current filters.</p>
+          </div>
+        </div>
+        <div class="table-foot">
+          <span id="table-count">Showing 0 students</span>
+          <span class="muted">Data is saved automatically in your browser (localStorage)</span>
+        </div>
+      </section>
+    </main>
+
+    <footer class="page-footer">
+      <p>&copy; 2024&ndash;2026 Student Attendance Monitoring System &bull; Est. 2024 &bull; Integrated Solutions</p>
+    </footer>
+  </div>
+
+  <!-- ============ STATUS CHANGE DROPDOWN ============ -->
+  <div id="status-menu" class="status-menu" hidden aria-hidden="true">
+    <div class="status-menu-head">
+      <span>Change status</span>
+      <button id="status-menu-close" type="button" class="status-menu-close" aria-label="Close status menu" title="Close"><i data-lucide="x"></i></button>
+    </div>
+    <button type="button" data-status="present"><span class="dot dot-present"></span>Present</button>
+    <button type="button" data-status="absent"><span class="dot dot-absent"></span>Absent</button>
+    <button type="button" data-status="late"><span class="dot dot-late"></span>Late</button>
+    <button type="button" data-status="excused"><span class="dot dot-excused"></span>Excused</button>
+    <button type="button" data-status="none" class="menu-clear"><span class="dot dot-none"></span>Clear mark</button>
+  </div>
+
+  <!-- ============ ADD / EDIT STUDENT MODAL ============ -->
+  <div id="student-modal" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="student-modal-title">
+      <div class="modal-head">
+        <h3 id="student-modal-title">Add New Student</h3>
+        <button type="button" class="icon-btn modal-close" aria-label="Close dialog"><i data-lucide="x"></i></button>
+      </div>
+      <form id="student-form" novalidate>
+        <input type="hidden" id="student-edit-id" value="">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="f-student-id">Student ID <span class="req">*</span></label>
+            <input id="f-student-id" type="text" placeholder="e.g. S017" autocomplete="off" required>
+            <p class="field-error" id="err-student-id"></p>
+          </div>
+          <div class="form-field">
+            <label for="f-full-name">Full Name <span class="req">*</span></label>
+            <input id="f-full-name" type="text" placeholder="e.g. Juan Dela Cruz" autocomplete="off" required>
+            <p class="field-error" id="err-full-name"></p>
+          </div>
+          <div class="form-field">
+            <label for="f-section">Grade / Course / Section <span class="req">*</span></label>
+            <input id="f-section" type="text" list="section-suggestions" placeholder="e.g. Grade 11 - STEM A" autocomplete="off" required>
+            <datalist id="section-suggestions"></datalist>
+            <p class="field-error" id="err-section"></p>
+          </div>
+          <div class="form-field">
+            <label for="f-gender">Gender <span class="req">*</span></label>
+            <select id="f-gender" class="select" required>
+              <option value="">Select gender…</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other / Prefer not to say</option>
+            </select>
+            <p class="field-error" id="err-gender"></p>
+          </div>
+          <div class="form-field form-field-full">
+            <label for="f-contact">Email / Contact <span class="req">*</span></label>
+            <input id="f-contact" type="text" placeholder="e.g. juan.delacruz@school.edu or +63 917 000 0000" autocomplete="off" required>
+            <p class="field-error" id="err-contact"></p>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-ghost modal-close">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="student-form-submit">
+            <i data-lucide="check"></i><span>Save Student</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ MANUAL SEARCH & MARK MODAL ============ -->
+  <div id="manual-modal" class="modal-overlay" hidden>
+    <div class="modal modal-wide" role="dialog" aria-modal="true" aria-labelledby="manual-modal-title">
+      <div class="modal-head">
+        <h3 id="manual-modal-title">Search &amp; Mark Attendance</h3>
+        <button type="button" class="icon-btn modal-close" aria-label="Close dialog"><i data-lucide="x"></i></button>
+      </div>
+      <div class="tool-search tool-search-lg">
+        <i data-lucide="search"></i>
+        <input id="manual-search" type="search" placeholder="Type a Student ID or full name…" aria-label="Search students by ID or name" autocomplete="off">
+      </div>
+      <div id="manual-results" class="manual-results">
+        <!-- results rendered by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CONFIRM DIALOG ============ -->
+  <div id="confirm-modal" class="modal-overlay" hidden>
+    <div class="modal modal-sm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+      <div class="modal-head">
+        <h3 id="confirm-title">Are you sure?</h3>
+        <button type="button" class="icon-btn modal-close" aria-label="Close dialog"><i data-lucide="x"></i></button>
+      </div>
+      <p id="confirm-message" class="confirm-message">&nbsp;</p>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost modal-close">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirm-yes">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TOASTS ============ -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+  <!-- ============ PRINT-ONLY REPORT ============ -->
+  <div id="print-report" aria-hidden="true">
+    <div class="print-head">
+      <img src="logo.svg" alt="" class="print-logo">
+      <h1>S.A.M.Y. · Student Attendance Monitoring System</h1>
+      <p id="print-subtitle">Attendance Report</p>
+    </div>
+    <table class="print-table" id="print-table">
+      <thead>
+        <tr>
+          <th>Student ID</th><th>Full Name</th><th>Section / Class</th><th>Date &amp; Time Logged</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="print-tbody"></tbody>
+    </table>
+    <p class="print-foot" id="print-foot"></p>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
+
+
